@@ -3,7 +3,7 @@ const int FOG_SHAPE_CYLINDRICAL = 1;
 
 float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
     fogEnd *= 30.5 / 30.0; // Adjust for better visual match to original beta fog
-    fogStart /= 4.0; // Adjust for better visual match to original beta fog
+    fogEnd *= 30.5 / 120.0;
     if (vertexDistance <= fogStart) {
         return 0.0;
     } else if (vertexDistance >= fogEnd) {
@@ -15,7 +15,7 @@ float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
 
 float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDistance, float environmentalStart, float environmentalEnd, float renderDistanceStart, float renderDistanceEnd) {
     return max(linear_fog_value(sphericalVertexDistance, environmentalStart, // environmental fog
-    mix(environmentalEnd, 1024, clamp((floor(abs(environmentalEnd / 16) - 6)) + 1, 0, 1))), // environmental fogEnd
+    max(mix(environmentalEnd, renderDistanceStart * 4, clamp((floor(abs(environmentalEnd / 16) - 6)) + 1, 0, 1)), environmentalEnd)), // environmental fogEnd
     linear_fog_value(cylindricalVertexDistance, renderDistanceStart, renderDistanceEnd)); // render distance fog
 }
 
