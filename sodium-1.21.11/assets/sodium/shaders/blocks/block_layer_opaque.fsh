@@ -1,9 +1,5 @@
 #version 330 core
 
-#ifndef MAX_TEXTURE_LOD_BIAS
-#error "MAX_TEXTURE_LOD_BIAS constant not specified"
-#endif
-
 #import <sodium:include/fog.glsl>
 #import <sodium:include/chunk_material.glsl>
 
@@ -31,12 +27,12 @@ vec2 snapUV(vec2 uv, vec2 pixelSize, ivec2 texSize) {
 }
 
 // Nearest texel sampling
-vec4 sampleNearest(sampler2D tex, vec2 uv, vec2 pixelSize) {
-    return textureGrad(tex, snapUV(uv, pixelSize, textureSize(tex, 0)), dFdx(uv), dFdy(uv));
+vec4 sampleNearest(sampler2D sourcer, vec2 uv, vec2 pixelSize) {
+    return textureGrad(sourcer, snapUV(uv, pixelSize, textureSize(sourcer, 0)), dFdx(uv), dFdy(uv));
 }
 
 // Rotated Grid Super-Sampling
-vec4 sampleRGSS(sampler2D tex, vec2 uv, vec2 pixelSize) {
+vec4 sampleRGSS(sampler2D sourcer, vec2 uv, vec2 pixelSize) {
     vec2 du = dFdx(uv), dv = dFdy(uv);
     float minPix   = min(pixelSize.x, pixelSize.y);
     float mipExact = max(0.0, log2(sqrt(length(du) * length(dv)) / minPix));
@@ -48,12 +44,12 @@ vec4 sampleRGSS(sampler2D tex, vec2 uv, vec2 pixelSize) {
 
     vec4 low = vec4(0), high = vec4(0);
     for (int i=0;i<4;++i) {
-        ivec2 sizeL = textureSize(tex, mipLow), sizeH = textureSize(tex, mipLow+1);
-        low  += textureLod(tex, snapUV(uv + offs[i]*pixelSize, 1.0/vec2(sizeL), sizeL), float(mipLow));
-        high += textureLod(tex, snapUV(uv + offs[i]*pixelSize, 1.0/vec2(sizeH), sizeH), float(mipLow+1));
+        ivec2 sizeL = textureSize(sourcer, mipLow), sizeH = textureSize(sourcer, mipLow+1);
+        low  += textureLod(sourcer, snapUV(uv + offs[i]*pixelSize, 1.0/vec2(sizeL), sizeL), float(mipLow));
+        high += textureLod(sourcer, snapUV(uv + offs[i]*pixelSize, 1.0/vec2(sizeH), sizeH), float(mipLow+1));
     }
 
-    return mix(sampleNearest(tex, uv, pixelSize), mix(low, high, mipBlend) * 0.25, blend);
+    return mix(sampleNearest(sourcer, uv, pixelSize), mix(low, high, mipBlend) * 0.25, blend);
 }
 
 void main() {
@@ -66,5 +62,5 @@ void main() {
     }
 #endif
 
-    fragColor = _linearFog(color, v_FragDistance / fadeFactor, u_FogColor, u_EnvironmentFog, u_RenderFog, fadeFactor);
+    fragColor = _linearFog(color, v_FragDistance, u_FogColor, u_EnvironmentFog, u_RenderFog, fadeFactor);
 }
