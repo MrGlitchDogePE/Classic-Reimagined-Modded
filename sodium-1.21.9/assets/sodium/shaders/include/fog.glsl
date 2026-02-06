@@ -13,7 +13,7 @@ float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
 }
 
 float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDistance, float environmentalStart, float environmentalEnd, float renderDistanceStart, float renderDistanceEnd) {
-    return (max(max(max(max(max(
+    return max(max(max(max(max(max(
         linear_fog_value(sphericalVertexDistance, 0, 1024 * (30.5 / 30.0)),
         linear_fog_value(sphericalVertexDistance, 2, 768 * (30.5 / 30.0))),
         linear_fog_value(sphericalVertexDistance, 4, 512 * (30.5 / 30.0))),
@@ -23,7 +23,6 @@ float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDist
         linear_fog_value(sphericalVertexDistance, environmentalStart, environmentalEnd))
     ;
 }
-
 vec4 _linearFog(vec4 fragColor, vec2 fragDistance, vec4 fogColor, vec2 environmentFog, vec2 renderFog) {
 #ifdef USE_FOG
     float fogValue = total_fog_value(fragDistance.y, fragDistance.x, environmentFog.x, environmentFog.y, renderFog.x, renderFog.y);
