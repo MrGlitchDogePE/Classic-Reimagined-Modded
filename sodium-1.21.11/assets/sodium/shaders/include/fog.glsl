@@ -13,18 +13,19 @@ float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
 }
 
 float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDistance, float environmentalStart, float environmentalEnd, float renderDistanceStart, float renderDistanceEnd) {
-    if(environmentalEnd > renderDistanceEnd) {
-        // this is probably overworld atmosphere fog, if so only use render distance fog properties
-        return mix(
-        linear_fog_value(sphericalVertexDistance, renderDistanceEnd, renderDistanceEnd),
+    return mix(
+        mix(
+            linear_fog_value(sphericalVertexDistance, environmentalStart * 2, environmentalEnd * 2),
+            linear_fog_value(sphericalVertexDistance, 0, environmentalEnd),
+            linear_fog_value(sphericalVertexDistance, environmentalEnd / 16, environmentalEnd)
+        ),
         linear_fog_value(sphericalVertexDistance, 0, renderDistanceEnd),
-        linear_fog_value(sphericalVertexDistance, max(renderDistanceEnd / 16, 8), renderDistanceEnd));
-    }
-    // otherwise use the mix of environmental and render distance
-    // in this case environmental fog would be other effects such as underwater, blindness, powder snow, etc fog
-    return max(
-        linear_fog_value(sphericalVertexDistance, environmentalStart, environmentalEnd),
-        linear_fog_value(sphericalVertexDistance, environmentalStart / 4, environmentalEnd));
+        mix(
+            linear_fog_value(sphericalVertexDistance, 0, 521),
+            linear_fog_value(sphericalVertexDistance, 0, renderDistanceEnd),
+            linear_fog_value(sphericalVertexDistance, renderDistanceEnd / 256, renderDistanceEnd)
+        )
+    );
 }
 
 vec4 _linearFog(vec4 fragColor, vec2 fragDistance, vec4 fogColor, vec2 environmentFog, vec2 renderFog, float fadeFactor) {
