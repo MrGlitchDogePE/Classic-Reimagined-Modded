@@ -58,7 +58,7 @@ void main() {
     color = _linearFog(color, v_FragDistance, u_FogColor, u_EnvironmentFog, u_RenderFog, fadeFactor);
     // visibleColor is the color of the fragment after applying fog, but before applying darkness from distance
     vec4 visibleColor = vec4(1.0);
-    visibleColor = _linearFog(visibleColor, v_FragDistance, vec4(0.0, 0.0, 0.0, color.a), u_EnvironmentFog, u_RenderFog, fadeFactor);
+    visibleColor = _linearFog(visibleColor, v_FragDistance, vec4(0.0, 0.0, 0.0, color.a), u_EnvironmentFog, u_RenderFog * 1.25, fadeFactor);
 // discard fragments that are below the alpha cutoff threshold, if the material uses alpha testing
 #ifdef USE_FRAGMENT_DISCARD
     if (color.a < _material_alpha_cutoff(v_Material)) {
@@ -69,10 +69,6 @@ void main() {
     if (visibleColor.rgb == vec4(0.0).rgb) {
         discard;
     } else {
-        if (color.rgb == u_FogColor.rgb) {
-            discard;
-            } else {
-                fragColor = color;
-        }
+        fragColor = color;
     }
 }
