@@ -2,7 +2,6 @@ const int FOG_SHAPE_SPHERICAL = 0;
 const int FOG_SHAPE_CYLINDRICAL = 1;
 
 float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
-    fogEnd *= 30.5 / 30.0; // Adjust for better visual match to original beta fog
     if (vertexDistance <= fogStart) {
         return 0.0;
     } else if (vertexDistance >= fogEnd) {
@@ -13,14 +12,17 @@ float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
 }
 
 float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDistance, float environmentalStart, float environmentalEnd, float renderDistanceStart, float renderDistanceEnd) {
-    return max(
-        pow(linear_fog_value(sphericalVertexDistance, environmentalStart, environmentalEnd), 1.14),
-        pow(linear_fog_value(sphericalVertexDistance, 1.0, min(renderDistanceEnd, environmentalEnd)), 2)
+    return mix(
+        pow(clamp((sphericalVertexDistance) / min(renderDistanceEnd, environmentalEnd), 0.0, 1.0), (renderDistanceEnd / renderDistanceStart) * 1.75),
+        1.0,
+        (0.5 - environmentalStart) / (environmentalEnd - environmentalStart)
     );
 };
 
 vec4 _linearFog(vec4 fragColor, vec2 fragDistance, vec4 fogColor, vec2 environmentFog, vec2 renderFog, float fadeFactor) {
 #ifdef USE_FOG
+    //fogColor.rgb = vec3(1.0);
+    //fragColor.rgb = vec3(0.0);
     float fogValue = max(1.0 - fadeFactor, total_fog_value(fragDistance.y, fragDistance.x, environmentFog.x, environmentFog.y, renderFog.x, renderFog.y));
     return vec4(mix(fragColor.rgb, fogColor.rgb, fogValue * fogColor.a), fragColor.a);
 #else
