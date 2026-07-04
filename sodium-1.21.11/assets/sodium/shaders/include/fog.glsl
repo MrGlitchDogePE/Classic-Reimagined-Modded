@@ -11,20 +11,26 @@ float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
     return (vertexDistance - fogStart) / (fogEnd - fogStart);
 }
 
+float classic_fog_value(float vertexDistance, float fogStart, float fogEnd) {
+    float fogFactor = 1.0f - sqrt(1.0f - pow(linear_fog_value(vertexDistance, 0, fogEnd), 2.0));
+    float fogValue = sqrt(max(linear_fog_value(vertexDistance, fogStart, fogEnd), fogFactor));
+    float fogValue2 = linear_fog_value(vertexDistance, 0, fogEnd) - 0.375 * (1 - linear_fog_value(vertexDistance, 0, fogEnd));
+    return min(fogValue, fogValue2);
+}
+
 float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDistance, float environmentalStart, float environmentalEnd, float renderDistanceStart, float renderDistanceEnd) {
     return mix(
-        mix(pow(clamp((sphericalVertexDistance) / min(renderDistanceEnd, environmentalEnd), 0.0, 1.0), 2.5),
+        max(classic_fog_value(sphericalVertexDistance, renderDistanceStart, renderDistanceEnd),
+        classic_fog_value(sphericalVertexDistance, environmentalStart, environmentalEnd)),
         1.0,
-        pow(clamp((sphericalVertexDistance) / 1024, 0.0, 1.0), 1.38)),
-        1.0,
-        clamp((0.5 - environmentalStart) / (environmentalEnd - environmentalStart), 0.0, 1.0)
+        clamp((0.0 - environmentalStart) / (environmentalEnd - environmentalStart), 0.0, 1.0)
     );
 };
 
 vec4 _linearFog(vec4 fragColor, vec2 fragDistance, vec4 fogColor, vec2 environmentFog, vec2 renderFog, float fadeFactor) {
 #ifdef USE_FOG
-    //fogColor.rgb = vec3(1.0);
-    //fragColor.rgb = vec3(0.0);
+    // fogColor.rgb = vec3(1.0);
+    // fragColor.rgb = vec3(0.0);
     float fogValue = max(1.0 - fadeFactor, total_fog_value(fragDistance.y, fragDistance.x, environmentFog.x, environmentFog.y, renderFog.x, renderFog.y));
     return vec4(mix(fragColor.rgb, fogColor.rgb, fogValue * fogColor.a), fragColor.a);
 #else
