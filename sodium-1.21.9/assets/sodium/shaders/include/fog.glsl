@@ -13,23 +13,24 @@ float linear_fog_value(float vertexDistance, float fogStart, float fogEnd) {
 
 float classic_fog_value(float vertexDistance, float fogStart, float fogEnd) {
     float fogValue = sqrt(1.0f - pow(linear_fog_value(vertexDistance, 0, fogEnd), 2.0));
-    float shortFogValue = smoothstep(0, fogEnd * 1.5, vertexDistance);
-    float smoothFogValue = pow(shortFogValue, 1.0f - shortFogValue);
-    float smootherFogValue = pow(pow(pow(pow(smoothFogValue, 1.0f - smoothFogValue), 1.0f - smoothFogValue), 1.0f - smoothFogValue), 1.0f - smoothFogValue);
-    float envFogValue = sqrt(linear_fog_value(vertexDistance, 0, fogEnd * 4.0));
-    return pow(pow(envFogValue * smootherFogValue, fogValue), sqrt(1.0f - pow(linear_fog_value(vertexDistance, fogStart, fogEnd), 2.0))); 
+    float normalized = (vertexDistance - fogStart) / (fogEnd - fogStart);
+    normalized = clamp(normalized, 0.0, 1.0);
+    // Apply logarithmic scaling
+    float fogFactor = log(1.0 + normalized * fogStart) / log(1.0 + fogStart);
+    float realistic_fog = pow(pow(fogFactor, 2) / 2, fogValue);
+
+    return pow(realistic_fog, sqrt(1.0f - pow(linear_fog_value(vertexDistance, fogEnd * 0.75, fogEnd), 2.0)));
 }
 
 float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDistance, float environmentalStart, float environmentalEnd, float renderDistanceStart, float renderDistanceEnd) {
-    float classicEnd = min(environmentalEnd, renderDistanceEnd) * (32 + sqrt(2.0) / 3.0f) / 32.0f;
-    float classicStart = classicEnd * 0.75;
+    float classicEnd = min(environmentalEnd, renderDistanceEnd) * (32.0 + sqrt(2.0) / 3.0) / 32.0;
+    float classicStart = classicEnd * 0.25;
     return mix(
         classic_fog_value(sphericalVertexDistance, classicStart, classicEnd),
         1.0,
         clamp((0.0 - environmentalStart) / (environmentalEnd - environmentalStart), 0.0, 1.0)
     );
 };
-
 
 vec4 _linearFog(vec4 fragColor, vec2 fragDistance, vec4 fogColor, vec2 environmentFog, vec2 renderFog) {
 #ifdef USE_FOG
