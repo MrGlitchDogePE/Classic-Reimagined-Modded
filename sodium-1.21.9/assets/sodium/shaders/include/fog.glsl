@@ -25,7 +25,7 @@ float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDist
         1.0,
         clamp((0.0 - environmentalStart) / (environmentalEnd - environmentalStart), 0.0, 1.0)
     );
-};
+}
 
 vec4 _linearFog(vec4 fragColor, vec2 fragDistance, vec4 fogColor, vec2 environmentFog, vec2 renderFog) {
 #ifdef USE_FOG
