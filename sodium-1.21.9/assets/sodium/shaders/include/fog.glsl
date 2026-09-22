@@ -20,6 +20,9 @@ float classic_fog_value(float vertexDistance, float fogStart, float fogEnd) {
 float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDistance, float environmentalStart, float environmentalEnd, float renderDistanceStart, float renderDistanceEnd) {
     float classicEnd = min(environmentalEnd, renderDistanceEnd);
     float classicStart = classicEnd * 0.25;
+    if(environmentalEnd == 96.0 && environmentalStart == 10.0) { // if isNether = true returns the classic nether fog
+        classicEnd = renderDistanceEnd;
+    }
     return mix(
         classic_fog_value(sphericalVertexDistance, classicStart, classicEnd),
         1.0,
