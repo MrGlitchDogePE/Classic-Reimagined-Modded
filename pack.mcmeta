@@ -40,11 +40,20 @@
       {
         "formats": [
           75,
-          88
+          84
         ],
         "min_format": 75,
-        "max_format": 88,
+        "max_format": 84,
         "directory": "sodium-1.21.11"
+      },
+      {
+        "formats": [
+          88,
+          89
+        ],
+        "min_format": 88,
+        "max_format": 89,
+        "directory": "sodium-26.2"
       }
     ]
   },
