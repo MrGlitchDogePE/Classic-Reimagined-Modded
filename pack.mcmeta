@@ -54,6 +54,15 @@
         "min_format": 88,
         "max_format": 89,
         "directory": "sodium-26.2"
+      },
+      {
+        "formats": [
+          97,
+          98
+        ],
+        "min_format": 97,
+        "max_format": 98,
+        "directory": "sodium-26.3"
       }
     ]
   },
