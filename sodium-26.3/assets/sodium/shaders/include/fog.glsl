@@ -21,10 +21,10 @@ float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDist
     // water fog
     float water_mixel = clamp((classicEnd - 24.0) / 72.0, 0.0, 1.0);
     float WaterFogDensity = mix(0.1, 0.03, water_mixel);
-    float WaterEnvironmentalFogValue = classic_fog_value(sphericalVertexDistance, WaterFogDensity);
+    float WaterEnvironmentalFogValue = pow(classic_fog_value(sphericalVertexDistance, WaterFogDensity), 1.0 / 1.5);
     // lava fog
     float lavaDensity = 2.0;
-    float LavaEnvironmentalFogValue = classic_fog_value(sphericalVertexDistance, lavaDensity);
+    float LavaEnvironmentalFogValue = 1.0f - exp(-lavaDensity * sphericalVertexDistance);
     // nether fog
     float NetherFogDensity = 1.0 / renderDistanceEnd;
     float NetherEnvironmentalFogValue = classic_fog_value(sphericalVertexDistance, NetherFogDensity);
@@ -46,6 +46,8 @@ float total_fog_value(float sphericalVertexDistance, float cylindricalVertexDist
 
 vec4 _linearFog(vec4 fragColor, vec2 fragDistance, vec4 fogColor, vec2 environmentFog, vec2 renderFog, float fadeFactor) {
 #ifdef USE_FOG
+    //fogColor.rgb = vec3(5.0 / 255.0, 5.0 / 255.0, 51.0 / 255.0);
+    //fragColor.rgb = vec3(0.0);
     float fogValue = max(1.0 - fadeFactor, total_fog_value(fragDistance.y, fragDistance.x, environmentFog.x, environmentFog.y, renderFog.x, renderFog.y));
     return vec4(mix(fragColor.rgb, fogColor.rgb, fogValue * fogColor.a), fragColor.a);
 #else
