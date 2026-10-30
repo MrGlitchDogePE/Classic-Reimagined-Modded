@@ -15,7 +15,7 @@ float classic_fog_value(float vertexDistance, float density) {
     return 1.0 - clamp(exp(-density * vertexDistance), 0.0, 1.0);
 }
 
-float classic_fog_value(float vertexDistance, float density) {
+float exponential_fog_value(float vertexDistance, float density) {
     return 1.0f - exp(-density * vertexDistance);
 }
 
